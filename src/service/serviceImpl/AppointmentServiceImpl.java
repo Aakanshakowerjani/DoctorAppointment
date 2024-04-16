@@ -2,6 +2,7 @@ package service.serviceImpl;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import dto.Appointment;
@@ -34,9 +35,11 @@ public class AppointmentServiceImpl implements AppointmentService{
 	public void bookAppointment(String patientName, String doctorName, LocalTime time) throws Exception {
 		// TODO Auto-generated method stub
 		
-		if(!isPatientAvailable(patientName,time,appointments)) throw new Exception("Can't book, Patient already have appointment...");
-		Doctor doctor=isDoctorAvailable(doctorName,time,doctors);
-		if(doctor==null) throw new Exception("Can't book, Doctor is not available");
+		Optional<Appointment> optionalAppointment=isPatientAvailable(patientName,time,appointments);
+		if(optionalAppointment.isPresent()) throw new Exception("Can't book, Patient already have appointment with "+" Dr."+optionalAppointment.get().getDoctorName()  +" Appointment Id" + optionalAppointment.get().getAppointmentId());
+		Optional<Doctor> optionalDoctor=isDoctorAvailable(doctorName,time,doctors);
+		if(optionalDoctor.isEmpty()) throw new Exception("Can't book, Doctor is not available");
+		Doctor doctor=optionalDoctor.get();
 		
 		String appointmentId=UUID.randomUUID().toString();
 		Appointment appointment=new Appointment(appointmentId,patientName, doctorName, time,appoinmentDuration);
@@ -73,7 +76,8 @@ public class AppointmentServiceImpl implements AppointmentService{
 		int position=fetchAppointmentIndex(appointmentId,appointments);
 		if(position==-1) System.out.println("No Appointment found!!");
 		else {
-			Doctor doctor=fetchDoctor(appointments.get(position).getDoctorName(), doctors);
+			Optional<Doctor> optionalDoctor= fetchDoctor(appointments.get(position).getDoctorName(), doctors);
+			Doctor doctor=optionalDoctor.get();
 			doctor.getSlots().add(appointments.get(position).getStartTime());
 			appointments.remove(position);
 			System.out.println("Booking Cancelled!!");

@@ -45,6 +45,11 @@ public class Main {
 						doctorService.addDoctorAvailablity(input[1], inputTime);
 						break;
 					}
+					case "REGISTER_PATIENT":
+					{
+						patientService.registerPatient(input[1]);
+						break;
+					}
 					case "SHOW_AVAILABILITY_BY_SPECIALITY":{
 						doctorService.showAvailableBySpeciality(Speciality.valueOf(input[1]));
 						break;
@@ -52,6 +57,18 @@ public class Main {
 					case "BOOK_APPOINTMENT":{
 						LocalTime time=LocalTime.of(Integer.valueOf(input[3].split(":")[0]),Integer.valueOf(input[3].split(":")[1]));
 						appointmentService.bookAppointment(input[1], input[2], time);
+						break;
+					}
+					case "SHOW_ALL_APPOINTMENT_OF_PATIENT":{
+						appointmentService.showAllPatientAppointments(input[1]);
+						break;
+					}
+					case "SHOW_ALL_APPOINTMENT_OF_DOCTOR":{
+						appointmentService.showAllDoctorAppointments(input[1]);
+						break;
+					}
+					case "CANCEL_APPOINTMENT":{
+						appointmentService.cancelAppointment(input[1]);
 						break;
 					}
 					default:{

@@ -4,6 +4,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.List;
+import java.util.Optional;
 
 import constants.Speciality;
 import dto.Doctor;
@@ -34,8 +35,9 @@ public class DoctorServiceImpl implements DoctorService {
 	@Override
 	public void addDoctorAvailablity(String doctorName, List<String> availableTimes) throws Exception {
 		// TODO Auto-generated method stub
-		Doctor doctor=fetchDoctor(doctorName, doctors);
-		if(doctor==null) throw new Exception("Doctor Not Found!!");
+		Optional<Doctor> doctorOptional=fetchDoctor(doctorName, doctors);
+		if(!doctorOptional.isPresent()) throw new Exception("Doctor Not Found!!");
+		Doctor doctor=doctorOptional.get();
 		for(String availableTime: availableTimes) {
 			String[] time=availableTime.split("-");
 			LocalTime startTime=LocalTime.of(Integer.parseInt(time[0].split(":")[0]), Integer.parseInt(time[0].split(":")[1]));
@@ -60,12 +62,9 @@ public class DoctorServiceImpl implements DoctorService {
 		List<Doctor> doctorList=fetchDoctorBySpeciality(speciality,doctors);
 		if(doctorList.isEmpty()) throw new Exception("No Doctor Available!!");
 		System.out.println("Available Doctor's List : ");
-		for(Doctor doctor:doctorList) {
-			if(!doctor.getSlots().isEmpty()) {
-				for(LocalTime time: doctor.getSlots())
-					System.out.println("Dr. "+ doctor.getDoctorName()+" : "+ time + " " + time.plusHours(appoinmentDuration));
-			}
-		}
+		doctorList.stream().filter(doctor -> !doctor.getSlots().isEmpty()).
+			forEach(doctor-> doctor.getSlots().stream().
+				forEach(time -> System.out.println("Dr. "+ doctor.getDoctorName()+" : "+ time + " " + time.plusHours(appoinmentDuration))));
 	}
 
 }

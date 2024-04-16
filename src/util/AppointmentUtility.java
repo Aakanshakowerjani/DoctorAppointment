@@ -3,28 +3,21 @@ package util;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import dto.Appointment;
 import dto.Doctor;
 
 public class AppointmentUtility {
 
-	public static boolean isPatientAvailable(String patientName, LocalTime time, List<Appointment> appointments) {
-		for(Appointment appointment: appointments) {
-			if(patientName.equals(appointment.getPatientName()) && time.compareTo(appointment.getStartTime())==0) return false;
-		}
-		return true;
+	public static Optional<Appointment> isPatientAvailable(String patientName, LocalTime time, List<Appointment> appointments) {
+		return appointments.stream().filter(appointment-> patientName.equals(appointment.getPatientName()) && time.compareTo(appointment.getStartTime())==0).findFirst();
 	}
 	
-	public static Doctor isDoctorAvailable(String doctorName, LocalTime time, List<Doctor> doctors) {
-		for(Doctor doctor: doctors) {
-			if(doctorName.equals(doctor.getDoctorName())) {
-				List<LocalTime> slots=doctor.getSlots();
-				if(slots.contains(time)) return doctor;
-				break;
-			}
-		}
-		return null;
+	public static Optional<Doctor> isDoctorAvailable(String doctorName, LocalTime time, List<Doctor> doctors) {
+		return doctors.stream().filter(doctor -> doctorName.equals(doctor.getDoctorName()) && 
+				!doctor.getSlots().isEmpty() && doctor.getSlots().contains(time)).findFirst();
+		
 	}
 	
 	public static List<Appointment> fetchAllAppointmentByPatientName(String patientName, List<Appointment> appointments){
